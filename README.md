@@ -6,3 +6,5 @@ The live site for England North Volleyball, hosted on Netlify.
 - Page text and layout are in `site/index.html`. The privacy notice is `site/privacy.html`.
 - Security headers are in `site/_headers`.
 - Every change saved to the `main` branch publishes to the live site automatically.
+
+Changes are made through Claude and published automatically by Netlify.
