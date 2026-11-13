@@ -21,11 +21,12 @@ const CONFIG = {
     message: "entry.467820305"
   },
 
+  // sortDate = first day, endDate = last day (YYYY-MM-DD). Used for the dates list and Google's event listings.
   programmes: [
     {
       id: "denmark", featured: true, img: "img/denmark.jpg",
       title: "Denmark Easter Camp", flag: "DENMARK",
-      when: "24 to 27 Mar 2027", sortDate: "2027-03-24",
+      when: "24 to 27 Mar 2027", sortDate: "2027-03-24", endDate: "2027-03-27", where: "Ikast, Denmark",
       who: "U18 boys and girls", entry: "Open to applications",
       price: "£550",
       includes: ["Return flight from London", "Transfers in Denmark", "Accommodation", "Food at the camp", "Training", "Coaching", "England North training t-shirts"],
@@ -36,7 +37,7 @@ const CONFIG = {
     {
       id: "lanzarote",
       title: "Lanzarote Beach Camp", flag: "LANZAROTE",
-      when: "13 to 20 Feb 2027", sortDate: "2027-02-13",
+      when: "13 to 20 Feb 2027", sortDate: "2027-02-13", endDate: "2027-02-20", where: "Lanzarote, Spain",
       who: "Indoor and beach players", entry: "Open",
       price: "£1,200", status: "Limited places",
       includes: ["Flight", "Transfers", "Accommodation", "Food", "Coaching", "Beach vests", "England North towel"],
@@ -45,7 +46,7 @@ const CONFIG = {
     {
       id: "belgium",
       title: "Belgium Summer Tour", flag: "BELGIUM",
-      when: "20 to 23 Aug 2027", sortDate: "2027-08-20", where: "Waremme, Belgium",
+      when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
       who: "U22 squad", entry: "Selected at trials",
       price: "Confirmed by January 2027", status: "Dates confirmed",
       blurb: "Our fourth year touring Waremme. Training, matches against Belgian club opposition and a pro league game.",
@@ -63,7 +64,7 @@ const CONFIG = {
     {
       id: "raf", img: "img/raf-camp.jpg",
       title: "Over-18s Summer Camp", flag: "RAF CAMP",
-      when: "24 to 28 Jul 2027", sortDate: "2027-07-24", where: "RAF Cranwell, Lincolnshire",
+      when: "24 to 28 Jul 2027", sortDate: "2027-07-24", endDate: "2027-07-28", where: "RAF Cranwell, Lincolnshire",
       who: "Players aged 18 and over", entry: "Open",
       price: "£400", status: "Dates confirmed",
       includes: ["Training kit", "Meals", "Coaching", "Accommodation"],
