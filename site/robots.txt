@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://envolleyball.netlify.app/sitemap.xml
+Sitemap: https://englandnorthvolleyball.co.uk/sitemap.xml

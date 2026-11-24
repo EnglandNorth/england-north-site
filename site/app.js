@@ -53,6 +53,15 @@ const CONFIG = {
       cta: "Register for trials", pickTitle: "England North Trials"
     },
     {
+      id: "belgium-girls",
+      title: "Belgium Girls Summer Tour", flag: "BELGIUM",
+      when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
+      who: "England North girls squad", entry: "Selected at girls trials",
+      price: "To be confirmed", status: "Dates confirmed",
+      blurb: "England North girls are heading to Waremme. Training, matches against Belgian club opposition and the full touring experience.",
+      cta: "Register for girls trials", pickTitle: "England North Girls Trials"
+    },
+    {
       id: "trials", img: "img/trials.jpg",
       title: "England North Trials", flag: "TRIALS",
       when: "Date to be confirmed", sortDate: "", where: "Venue to be confirmed",
@@ -60,6 +69,15 @@ const CONFIG = {
       price: "£25 per player", status: "Register now",
       blurb: "Trials for the Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
       cta: "Register for trials"
+    },
+    {
+      id: "girls-trials",
+      title: "England North Girls Trials", flag: "GIRLS TRIALS",
+      when: "January 2027, date to be confirmed", sortDate: "2027-01-01", where: "Venue to be confirmed",
+      who: "Girls", entry: "Open to all",
+      price: "To be confirmed", status: "Register now",
+      blurb: "Trials for the girls' Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
+      cta: "Register for girls trials"
     },
     {
       id: "raf", img: "img/raf-camp.jpg",

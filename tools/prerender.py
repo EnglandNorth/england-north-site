@@ -21,7 +21,7 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-SITE_URL = "https://envolleyball.netlify.app"
+SITE_URL = "https://englandnorthvolleyball.co.uk"
 ROOT = Path(__file__).resolve().parent.parent / "site"
 INDEX = ROOT / "index.html"
 
