@@ -47,7 +47,7 @@ const CONFIG = {
       id: "belgium",
       title: "Belgium Summer Tour", flag: "BELGIUM",
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
-      who: "U22 squad", entry: "Selected at trials",
+      who: "U22 men's squad", entry: "Selected at trials",
       price: "Confirmed by January 2027", status: "Dates confirmed",
       blurb: "Our fourth year touring Waremme. Training, matches against Belgian club opposition and a pro league game.",
       cta: "Register for trials", pickTitle: "England North Trials"
@@ -56,7 +56,7 @@ const CONFIG = {
       id: "belgium-girls",
       title: "Belgium Girls Summer Tour", flag: "BELGIUM",
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
-      who: "England North girls squad", entry: "Selected at girls trials",
+      who: "Under-18 girls", entry: "Selected at girls trials",
       price: "To be confirmed", status: "Dates confirmed",
       blurb: "England North girls are heading to Waremme. Training, matches against Belgian club opposition and the full touring experience.",
       cta: "Register for girls trials", pickTitle: "England North Girls Trials"
@@ -65,7 +65,7 @@ const CONFIG = {
       id: "trials", img: "img/trials.jpg",
       title: "England North Trials", flag: "TRIALS",
       when: "Date to be confirmed", sortDate: "", where: "Venue to be confirmed",
-      who: "U22 players", entry: "Open to all",
+      who: "U22 men", entry: "Open to all",
       price: "£25 per player", status: "Register now",
       blurb: "Trials for the Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
       cta: "Register for trials"
@@ -74,8 +74,8 @@ const CONFIG = {
       id: "girls-trials",
       title: "England North Girls Trials", flag: "GIRLS TRIALS",
       when: "January 2027, date to be confirmed", sortDate: "2027-01-01", where: "Venue to be confirmed",
-      who: "Girls", entry: "Open to all",
-      price: "To be confirmed", status: "Register now",
+      who: "Under-18 girls", entry: "Open to all",
+      price: "£25 per player", status: "Register your interest",
       blurb: "Trials for the girls' Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
       cta: "Register for girls trials"
     },
@@ -189,10 +189,11 @@ $('#reg-form').addEventListener('submit', async e => {
   $('#thanks').style.display = 'block';
 });
 
-// Direct link: add #trials to the site address to open the form with trials picked
+// Direct links: add #trials or #girls-trials to the site address to open the form with that trials picked
 function openFromHash(){
-  if (location.hash === '#trials'){
-    pick('England North Trials');
+  const links = { '#trials': 'England North Trials', '#girls-trials': 'England North Girls Trials' };
+  if (links[location.hash]){
+    pick(links[location.hash]);
     document.getElementById('register').scrollIntoView();
   }
 }
