@@ -123,6 +123,7 @@ form.addEventListener('submit', async e => {
 
   const payload = {
     v: 1,
+    code: state.code,
     person: state.person,
     events: events.map(p => {
       const a = ans(p.id), ds = days(p);
@@ -149,4 +150,32 @@ form.addEventListener('submit', async e => {
   scrollTo(0, 0);
 });
 
-render();
+// Staff code: checked by the Google Sheet script, which also refuses any answers sent without it
+async function checkCode(code) {
+  if (!CONFIG.staffSheet) return 'offline';
+  try {
+    const r = await fetch(CONFIG.staffSheet + '?code=' + encodeURIComponent(code));
+    return (await r.text()).trim() === 'ok' ? 'ok' : 'wrong';
+  } catch (e) { return 'offline'; }
+}
+function unlock() { document.body.classList.remove('locked'); render(); }
+
+$('#lock-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const input = e.target.elements.code, btn = e.target.querySelector('button'), m = $('#lock-msg');
+  const code = input.value.trim();
+  if (!code) return input.focus();
+  btn.disabled = true; btn.textContent = 'Checking…'; m.className = 'msg';
+  const result = await checkCode(code);
+  btn.disabled = false; btn.textContent = 'Open';
+  if (result === 'ok') { state.code = code; save(); unlock(); return; }
+  m.textContent = result === 'wrong' ? "That code isn't right. Check the message you were sent." : "Couldn't check the code. Check your signal and try again.";
+  m.className = 'msg err';
+  input.select();
+});
+
+// Already unlocked on this phone? Check the saved code still works (it fails if the code is changed)
+if (state.code) checkCode(state.code).then(r => {
+  if (r === 'ok') unlock();
+  else if (r === 'wrong') { delete state.code; save(); }
+});

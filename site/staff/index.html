@@ -101,11 +101,21 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .done p{color:var(--grey);margin:10px auto 22px;max-width:420px}
 .done button{font:inherit;font-weight:600;background:none;border:1.5px solid var(--ink);border-radius:99px;padding:10px 20px;cursor:pointer}
 body.sent main,body.sent .bar{display:none}
+.lock{display:none;padding:34px 18px 60px}
+.lock .panel{max-width:440px;margin:0 auto;text-align:center;padding:30px 22px}
+.lock .key{width:62px;height:62px;border-radius:50%;margin:0 auto 14px;background:var(--black);color:var(--gold);display:grid;place-items:center;font-size:1.6rem}
+.lock h2{font-size:1.9rem;font-weight:800}
+.lock p{color:var(--grey);margin:6px 0 18px;font-size:.95rem}
+.lock form{display:flex;gap:10px}
+.lock input{margin-top:0;text-align:center;letter-spacing:.08em}
+.lock .send{padding:12px 20px}
+body.locked main,body.locked .bar,body.locked .done{display:none}
+body.locked .lock{display:block}
 body.sent .done{display:block}
 footer{text-align:center;color:var(--grey);font-size:.82rem;margin:40px 0 10px}
 </style>
 </head>
-<body>
+<body class="locked">
 <div class="top">
   <div class="wrap">
     <div class="brand"><img src="/img/mark-white.png" alt=""><span>England North<small>Staff</small></span></div>
@@ -114,6 +124,16 @@ footer{text-align:center;color:var(--grey);font-size:.82rem;margin:40px 0 10px}
   </div>
 </div>
 <div class="goldline"></div>
+
+<section class="lock">
+  <div class="panel">
+    <div class="key">🔑</div>
+    <h2>Staff only</h2>
+    <p>Enter the staff code you were sent to open this page.</p>
+    <form id="lock-form"><input name="code" type="password" autocomplete="off" aria-label="Staff code" required><button class="send" type="submit">Open</button></form>
+    <div class="msg" id="lock-msg" role="alert"></div>
+  </div>
+</section>
 
 <main class="wrap">
   <form id="staff-form" novalidate>

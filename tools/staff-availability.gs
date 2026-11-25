@@ -13,17 +13,29 @@
  *  2. Extensions > Apps Script. Delete what's there, paste this file, save.
  *  3. Deploy > New deployment > type Web app.
  *     Execute as: Me.  Who has access: Anyone.  Deploy, then authorise.
+ *     Before deploying, change STAFF_CODE below to the code you'll give staff.
+ *     To lock someone out later, change it, then Deploy > Manage deployments >
+ *     edit > Version: New version > Deploy (the link stays the same).
  *  4. Copy the Web app URL (ends in /exec) and send it to Claude, which puts it
  *     in CONFIG.staffSheet on the website.
  */
+
+// The code staff type to open the page. Change it here, never in the website files.
+const STAFF_CODE = 'CHANGE-ME';
 
 const STAFF_HEAD = ['Email', 'Name', 'Mobile', 'Name on passport', 'Date of birth', 'Nearest airport', 'Dietary needs', 'Last updated'];
 const AVAIL_HEAD = ['Email', 'Name', 'Event ID', 'Event', 'Dates', 'Starts', 'Answer', 'Days', 'Role', 'Note', 'Last updated'];
 const LABEL = { yes: 'Available', maybe: 'Maybe', no: "Can't" };
 const COLOUR = { yes: '#d9ead3', maybe: '#fbe9b7', no: '#eeeeee' };
 
-function doGet() {
-  return ContentService.createTextOutput('England North staff availability is running.');
+function doGet(e) {
+  const code = e && e.parameter && e.parameter.code;
+  if (code !== undefined) return text(codeOk(code) ? 'ok' : 'no');
+  return text('England North staff availability is running.');
+}
+
+function codeOk(code) {
+  return STAFF_CODE !== 'CHANGE-ME' && String(code || '').trim() === STAFF_CODE;
 }
 
 function doPost(e) {
@@ -31,6 +43,7 @@ function doPost(e) {
   lock.waitLock(20000);
   try {
     const d = JSON.parse(e.postData.contents);
+    if (!codeOk(d.code)) return text('wrong code');
     const p = d.person || {};
     const email = clean(p.email).toLowerCase();
     if (!email || email.indexOf('@') < 1) return text('missing email');
