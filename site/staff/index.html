@@ -51,6 +51,34 @@ input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 
 .privacy{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--gold-soft);color:#5d4a17;font-size:.88rem}
 .privacy::before{content:"🔒";flex:none}
 
+textarea{width:100%;margin-top:6px;font:inherit;font-size:16px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fffdf8;color:var(--ink);resize:vertical;line-height:1.45}
+textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,165,55,.2)}
+.count{display:block;text-align:right;font-size:.78rem;color:var(--grey);font-weight:400;margin-top:4px}
+
+/* kit */
+.kit{display:grid;gap:0;margin-top:16px;border-top:1px solid var(--line)}
+.kit-row{display:grid;grid-template-columns:1fr 92px auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.kit-row.need-it{background:linear-gradient(90deg,rgba(227,6,19,.06),transparent 60%)}
+.kit-row.missing{box-shadow:inset 3px 0 0 var(--red);padding-left:10px}
+.kit-row b{font-weight:600;font-size:.98rem}
+.kit-row select{margin-top:0;padding:9px 10px;font-size:15px}
+.kit-row .na{font-size:.82rem;color:var(--grey);text-align:center}
+.pair{display:flex;gap:6px}
+.pair .chip{padding:8px 11px;font-size:.85rem}
+.pair .chip[data-v="need"][aria-pressed="true"]{background:var(--red);border-color:var(--red)}
+@media(max-width:420px){.kit-row{grid-template-columns:1fr 84px}.kit-row .pair{grid-column:1/-1}}
+
+/* profile */
+.photo{display:grid;grid-template-columns:96px 1fr;gap:16px;align-items:center}
+.photo p{font-size:.86rem;color:var(--grey);margin:2px 0 10px}
+.photo small{color:var(--grey)}
+.ph{width:96px;height:96px;border-radius:50%;background:var(--gold-soft) center/cover no-repeat;border:3px solid var(--gold);display:grid;place-items:center;color:var(--gold-deep);font-family:'Barlow Condensed';font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover}
+.pick{display:inline-block;font-family:'Barlow Condensed';font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:.95rem;background:var(--black);color:#fff;border-radius:99px;padding:9px 16px;cursor:pointer}
+.pick input{display:none}
+.tick{display:flex;gap:10px;align-items:flex-start;font-weight:500;cursor:pointer}
+.tick input{width:22px;height:22px;margin:1px 0 0;flex:none;accent-color:var(--red)}
+
 /* events */
 .events{display:grid;gap:14px}
 .ev{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 6px 20px rgba(60,45,10,.05);transition:border-color .2s,box-shadow .2s}
@@ -120,7 +148,7 @@ footer{text-align:center;color:var(--grey);font-size:.82rem;margin:40px 0 10px}
   <div class="wrap">
     <div class="brand"><img src="/img/mark-white.png" alt=""><span>England North<small>Staff</small></span></div>
     <h1>Trip &amp; event <em>availability</em></h1>
-    <p>Tell us which trips and events you can do, and give us your booking details once, so flights and rooms get booked without anyone chasing you. It takes about three minutes. You can come back and change your answers at any time.</p>
+    <p>Tell us which trips and events you can do, your kit sizes and a bit about you, so flights, rooms and kit get sorted without anyone chasing you. It takes about five minutes. You can come back and change your answers at any time.</p>
   </div>
 </div>
 <div class="goldline"></div>
@@ -160,6 +188,35 @@ footer{text-align:center;color:var(--grey);font-size:.82rem;margin:40px 0 10px}
 
     <div class="step"><b>2</b><div><h2>Trips &amp; events</h2><p>Answer each one, then pick the days and your role</p></div></div>
     <div class="events" id="events"></div>
+
+    <div class="step"><b>3</b><div><h2>Your kit</h2><p>Your sizes, and what you've already got</p></div></div>
+    <div class="panel">
+      <label>Fit<select data-fit required>
+        <option value="">Choose one</option><option>Men's fit</option><option>Women's fit</option>
+      </select></label>
+      <div class="kit" id="kit"></div>
+    </div>
+
+    <div class="step"><b>4</b><div><h2>Your profile</h2><p>So parents and players can get to know you</p></div></div>
+    <div class="panel">
+      <div class="grid">
+        <label class="full">Your title <small>(how you'd like to appear, e.g. Assistant Coach)</small><input name="title" maxlength="60"></label>
+        <label class="full">Short bio <small>(optional, up to 600 characters)</small>
+          <textarea name="bio" maxlength="600" rows="5" placeholder="Your coaching background, qualifications, playing career, and something people might not know about you."></textarea>
+          <span class="count" id="bio-count">0 / 600</span>
+        </label>
+        <div class="full photo">
+          <div class="ph" id="ph"><span>Photo</span></div>
+          <div>
+            <b>Profile photo</b> <small>(optional)</small>
+            <p>A clear head-and-shoulders shot works best. You can add or change it any time.</p>
+            <label class="pick">Choose a photo<input type="file" id="photo" accept="image/*"></label>
+          </div>
+        </div>
+        <label class="full tick"><input type="checkbox" name="webOk"> I'm happy for my title, bio and photo to appear on the England North website</label>
+      </div>
+    </div>
+
     <div class="msg" id="msg" role="alert"></div>
   </form>
   <footer>England North Volleyball · staff only · please don't share this link</footer>
@@ -175,7 +232,7 @@ footer{text-align:center;color:var(--grey);font-size:.82rem;margin:40px 0 10px}
 <section class="done wrap" aria-live="polite">
   <div class="tick">✓</div>
   <h2>Thanks, you're in</h2>
-  <p>Your availability and details are saved. If anything changes, open this link again. Your answers will still be here, so just update them and send again.</p>
+  <p>Your availability, kit and profile are saved. If anything changes, open this link again. Your answers will still be here, so just update them and send again.</p>
   <button type="button" data-action="edit">Change my answers</button>
 </section>
 

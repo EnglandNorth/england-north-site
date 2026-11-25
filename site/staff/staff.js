@@ -5,6 +5,11 @@
 
 const ROLES = ['Coach', 'Driver', 'First aider', 'Welfare lead'];
 const STATUS = [['yes', 'Available'], ['maybe', 'Maybe'], ['no', "Can't"]];
+const KIT = [
+  ['tshirt', 'T-shirt'], ['polo', 'Polo'], ['trackTop', 'Tracksuit top'], ['techPants', 'Tech pants'],
+  ['shorts', 'Shorts'], ['hoodie', 'Hoodie'], ['backpack', 'Backpack', true] // true = one size
+];
+const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
 const KEY = 'en-staff-v1';
 const $ = s => document.querySelector(s);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -29,9 +34,45 @@ function days(p) {
 const fmt = (iso, opts) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { timeZone: 'UTC', ...opts });
 
 // Saved answers on this phone, so staff can come back and edit
-let state = { person: {}, answers: {} };
+let state = { person: {}, answers: {}, kit: { fit: '', items: {} } };
 try { state = { ...state, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const kitItem = id => (state.kit.items[id] = state.kit.items[id] || { size: '', status: '' });
+let photo = ''; // resized JPEG (base64), only kept until sent
+
+function renderKit() {
+  document.querySelector('[data-fit]').value = state.kit.fit || '';
+  $('#kit').innerHTML = KIT.map(([id, label, oneSize]) => {
+    const k = kitItem(id);
+    return `<div class="kit-row${k.status === 'need' ? ' need-it' : ''}" data-kit="${id}">
+      <b>${label}</b>
+      ${oneSize ? '<span class="na">One size</span>' : `<select data-size aria-label="${label} size"><option value="">Size</option>${SIZES.map(z => `<option${k.size === z ? ' selected' : ''}>${z}</option>`).join('')}</select>`}
+      <div class="pair">${[['have', 'Got it'], ['need', 'Need one']].map(([v, l]) => `<button type="button" class="chip" data-v="${v}" aria-pressed="${k.status === v}">${l}</button>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// Shrink the photo on the phone before sending: max 900px, JPEG
+function loadPhoto(file) {
+  if (!file || !/^image\//.test(file.type)) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, 900 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      const url = c.toDataURL('image/jpeg', 0.85);
+      photo = url.split(',')[1];
+      $('#ph').innerHTML = `<img src="${url}" alt="Your photo">`;
+      document.querySelector('.pick').firstChild.textContent = 'Change photo';
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 const ans = id => (state.answers[id] = state.answers[id] || { status: '', days: null, roles: [], note: '' });
 
 function render() {
@@ -76,14 +117,44 @@ function progress() {
 
 // Fill in saved personal details
 const form = $('#staff-form');
-for (const [k, v] of Object.entries(state.person)) if (form.elements[k]) form.elements[k].value = v;
+for (const [k, v] of Object.entries(state.person)) {
+  const f = form.elements[k];
+  if (!f) continue;
+  if (f.type === 'checkbox') f.checked = v === 'yes'; else f.value = v;
+}
+const bioCount = () => { $('#bio-count').textContent = `${form.elements.bio.value.length} / 600`; };
+bioCount();
+$('#photo').addEventListener('change', e => loadPhoto(e.target.files[0]));
+form.addEventListener('change', e => {
+  if (e.target.type === 'checkbox' && e.target.name) { state.person[e.target.name] = e.target.checked ? 'yes' : ''; save(); }
+  if (e.target.matches('[data-fit]')) { state.kit.fit = e.target.value; save(); }
+  if (e.target.matches('[data-size]')) {
+    const row = e.target.closest('.kit-row');
+    kitItem(row.dataset.kit).size = e.target.value; row.classList.remove('missing'); save();
+  }
+});
 form.addEventListener('input', e => {
-  if (e.target.name) { state.person[e.target.name] = e.target.value; save(); }
+  if (e.target.name && e.target.type !== 'checkbox') { state.person[e.target.name] = e.target.value; save(); }
+  if (e.target.name === 'bio') bioCount();
   if (e.target.matches('[data-note]')) { ans(e.target.closest('.ev').dataset.id).note = e.target.value; save(); }
 });
 
+// Clear the error once they start fixing things
+const clearMsg = () => { $('#msg').className = 'msg'; };
+form.addEventListener('change', clearMsg);
 document.addEventListener('click', e => {
+  if (e.target.closest('.seg button, .pair .chip')) clearMsg();
   if (e.target.closest('[data-action="edit"]')) { document.body.classList.remove('sent'); scrollTo(0, 0); return; }
+  const kitRow = e.target.closest('.kit-row');
+  const kitChip = e.target.closest('.pair .chip');
+  if (kitRow && kitChip) {
+    const k = kitItem(kitRow.dataset.kit);
+    k.status = kitChip.dataset.v;
+    kitRow.querySelectorAll('.pair .chip').forEach(c => c.setAttribute('aria-pressed', c === kitChip));
+    kitRow.classList.toggle('need-it', k.status === 'need');
+    if (k.size || !kitRow.querySelector('[data-size]')) kitRow.classList.remove('missing');
+    save(); return;
+  }
   const ev = e.target.closest('.ev');
   if (!ev) return;
   const a = ans(ev.dataset.id);
@@ -119,12 +190,19 @@ form.addEventListener('submit', async e => {
   const missing = events.filter(p => !ans(p.id).status);
   document.querySelectorAll('.ev').forEach(el => el.classList.toggle('need', missing.some(p => p.id === el.dataset.id)));
   if (missing.length) return fail(`Please answer ${missing.length === 1 ? 'the event' : 'the ' + missing.length + ' events'} marked in red.`, document.querySelector('.ev.need'));
+  const fit = document.querySelector('[data-fit]');
+  if (!fit.value) { fit.focus(); return fail('Please choose your kit fit.', fit); }
+  const kitGaps = KIT.filter(([id, , oneSize]) => !kitItem(id).status || (!oneSize && !kitItem(id).size));
+  document.querySelectorAll('.kit-row').forEach(r => r.classList.toggle('missing', kitGaps.some(([id]) => id === r.dataset.kit)));
+  if (kitGaps.length) return fail('Please give a size, and say whether you\'ve got it or need one, for each kit item marked in red.', document.querySelector('.kit-row.missing'));
   if (!CONFIG.staffSheet) return fail('This page isn\'t connected to the staff sheet yet. Please try again later.');
 
   const payload = {
     v: 1,
     code: state.code,
     person: state.person,
+    photo,
+    kit: { fit: state.kit.fit, items: KIT.map(([id, label, oneSize]) => ({ id, item: label, size: oneSize ? 'One size' : kitItem(id).size, status: kitItem(id).status })) },
     events: events.map(p => {
       const a = ans(p.id), ds = days(p);
       const picked = a.status === 'no' ? [] : (a.days || ds);
@@ -146,6 +224,7 @@ form.addEventListener('submit', async e => {
     return fail('That didn\'t send. Check your signal and try again.');
   }
   btn.disabled = false; btn.textContent = 'Send';
+  if (photo) { photo = ''; state.person.photoSent = 'yes'; save(); }
   document.body.classList.add('sent');
   scrollTo(0, 0);
 });
@@ -158,7 +237,10 @@ async function checkCode(code) {
     return (await r.text()).trim() === 'ok' ? 'ok' : 'wrong';
   } catch (e) { return 'offline'; }
 }
-function unlock() { document.body.classList.remove('locked'); render(); }
+function unlock() {
+  document.body.classList.remove('locked'); render(); renderKit();
+  if (state.person.photoSent === 'yes') $('#ph').innerHTML = '<span>Sent ✓</span>';
+}
 
 $('#lock-form').addEventListener('submit', async e => {
   e.preventDefault();

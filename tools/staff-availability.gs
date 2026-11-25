@@ -5,6 +5,11 @@
  *   Overview      one row per person, one column per trip (rebuilt on every send)
  *   Availability  one row per person per trip
  *   Staff         one row per person: booking details
+ *   Kit           one row per person: fit, sizes, got it / needs one
+ *   Kit to order  what needs ordering, by item, fit and size (rebuilt on every send)
+ *   Profiles      title, bio, website permission and photo link
+ *
+ * Photos are saved to a Drive folder called "England North staff photos".
  *
  * When someone sends again, their rows are updated, not duplicated.
  *
@@ -12,7 +17,8 @@
  *  1. Create a Google Sheet called "England North staff availability".
  *  2. Extensions > Apps Script. Delete what's there, paste this file, save.
  *  3. Deploy > New deployment > type Web app.
- *     Execute as: Me.  Who has access: Anyone.  Deploy, then authorise.
+ *     Execute as: Me.  Who has access: Anyone.  Deploy, then authorise
+ *     (it asks for Sheets and Drive: Drive is for saving staff photos).
  *     Before deploying, change STAFF_CODE below to the code you'll give staff.
  *     To lock someone out later, change it, then Deploy > Manage deployments >
  *     edit > Version: New version > Deploy (the link stays the same).
@@ -25,6 +31,10 @@ const STAFF_CODE = 'CHANGE-ME';
 
 const STAFF_HEAD = ['Email', 'Name', 'Mobile', 'Name on passport', 'Date of birth', 'Nearest airport', 'Dietary needs', 'Last updated'];
 const AVAIL_HEAD = ['Email', 'Name', 'Event ID', 'Event', 'Dates', 'Starts', 'Answer', 'Days', 'Role', 'Note', 'Last updated'];
+const KIT_ITEMS = ['T-shirt', 'Polo', 'Tracksuit top', 'Tech pants', 'Shorts', 'Hoodie', 'Backpack'];
+const KIT_HEAD = ['Email', 'Name', 'Fit'].concat(KIT_ITEMS, ['Last updated']);
+const PROFILE_HEAD = ['Email', 'Name', 'Title', 'Bio', 'OK for website', 'Photo', 'Last updated'];
+const PHOTO_FOLDER = 'England North staff photos';
 const LABEL = { yes: 'Available', maybe: 'Maybe', no: "Can't" };
 const COLOUR = { yes: '#d9ead3', maybe: '#fbe9b7', no: '#eeeeee' };
 
@@ -63,7 +73,27 @@ function doPost(e) {
          clean(ev.days), clean(ev.roles), clean(ev.note), now]);
     });
 
+    // Kit: one cell per item, e.g. "M, got it" or "L, NEEDS ONE"
+    const kit = d.kit || {};
+    const items = {};
+    (kit.items || []).forEach(k => { items[clean(k.item)] = k; });
+    upsert(sheet(ss, 'Kit', KIT_HEAD), r => r[0] === email,
+      [email, name, clean(kit.fit)].concat(KIT_ITEMS.map(label => {
+        const k = items[label];
+        if (!k) return '';
+        return [clean(k.size), k.status === 'need' ? 'NEEDS ONE' : k.status === 'have' ? 'got it' : ''].filter(String).join(', ');
+      }), [now]));
+
+    // Profile: keep the existing photo unless a new one was sent
+    const prof = sheet(ss, 'Profiles', PROFILE_HEAD);
+    const old = prof.getDataRange().getValues().find(r => r[0] === email);
+    let photoLink = old ? old[5] : '';
+    if (d.photo && String(d.photo).length < 6000000) photoLink = savePhoto(d.photo, name || email);
+    upsert(prof, r => r[0] === email,
+      [email, name, clean(p.title), clean(p.bio, 700), p.webOk === 'yes' ? 'Yes' : 'No', photoLink, now]);
+
     buildOverview(ss);
+    buildKitOrder(ss);
     return text('ok');
   } finally {
     lock.releaseLock();
@@ -119,6 +149,41 @@ function buildOverview(ss) {
   if (ids.length) sh.setColumnWidths(2, ids.length, 150);
 }
 
+function buildKitOrder(ss) {
+  const rows = sheet(ss, 'Kit', KIT_HEAD).getDataRange().getValues().slice(1);
+  const need = {};
+  rows.forEach(r => {
+    KIT_ITEMS.forEach((item, i) => {
+      const cell = String(r[3 + i] || '');
+      if (cell.indexOf('NEEDS ONE') < 0) return;
+      const size = cell.split(',')[0].trim();
+      const key = [item, item === 'Backpack' ? '' : r[2], size].join('|');
+      (need[key] = need[key] || []).push(r[1]);
+    });
+  });
+  const keys = Object.keys(need).sort((a, b) => {
+    const [ia, , sa] = a.split('|'), [ib, , sb] = b.split('|');
+    return KIT_ITEMS.indexOf(ia) - KIT_ITEMS.indexOf(ib) || SIZE_ORDER.indexOf(sa) - SIZE_ORDER.indexOf(sb) || a.localeCompare(b);
+  });
+  const out = [['Item', 'Fit', 'Size', 'Quantity', 'Who']];
+  keys.forEach(k => { const [item, fit, size] = k.split('|'); out.push([item, fit, size, need[k].length, need[k].join(', ')]); });
+  if (keys.length === 0) out.push(['Nothing to order yet', '', '', '', '']);
+  let sh = ss.getSheetByName('Kit to order') || ss.insertSheet('Kit to order');
+  sh.clear();
+  sh.getRange(1, 1, out.length, 5).setValues(out);
+  sh.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#0b0b0b').setFontColor('#d4a537');
+  sh.setFrozenRows(1);
+}
+const SIZE_ORDER = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'One size'];
+
+function savePhoto(base64, name) {
+  const folders = DriveApp.getFoldersByName(PHOTO_FOLDER);
+  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(PHOTO_FOLDER);
+  const stamp = Utilities.formatDate(new Date(), 'Europe/London', 'yyyy-MM-dd');
+  const blob = Utilities.newBlob(Utilities.base64Decode(base64), 'image/jpeg', name.replace(/[^\w .-]/g, '') + ' ' + stamp + '.jpg');
+  return folder.createFile(blob).getUrl();
+}
+
 function sheet(ss, name, head) {
   let sh = ss.getSheetByName(name);
   if (!sh) {
@@ -138,8 +203,8 @@ function upsert(sh, match, row) {
 }
 
 // Trim, cap length, and stop anything being read as a spreadsheet formula
-function clean(v) {
-  const s = String(v == null ? '' : v).trim().slice(0, 300);
+function clean(v, max) {
+  const s = String(v == null ? '' : v).trim().slice(0, max || 300);
   // a leading apostrophe also keeps phone numbers like 07700... as text
   return /^([=+\-@]|0\d)/.test(s) ? "'" + s : s;
 }
