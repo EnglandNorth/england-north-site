@@ -46,7 +46,7 @@ const CONFIG = {
       blurb: "A week of beach volleyball training in the sun over February half-term. Sharper footwork, better reads, better indoor game."
     },
     {
-      id: "belgium", img: "img/waremme-hall.jpg",
+      id: "belgium", askSize: false, img: "img/waremme-hall.jpg",
       title: "Belgium Summer Tour", flag: "BELGIUM",
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
       who: "U22 men's squad", entry: "Selected at trials",
@@ -56,7 +56,7 @@ const CONFIG = {
       cta: "Register for trials", pickTitle: "England North Trials"
     },
     {
-      id: "belgium-girls", img: "img/girls-tour.jpg",
+      id: "belgium-girls", askSize: false, img: "img/girls-tour.jpg",
       title: "Belgium Girls Summer Tour", flag: "BELGIUM",
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
       who: "Under-18 girls", entry: "Selected at girls trials",
@@ -161,7 +161,7 @@ function pick(title){
 function kitFields(){
   const p = CONFIG.programmes.find(x => x.title === $('#programme-select').value);
   const inc = (p && p.includes) || [];
-  const needsSize = inc.some(i => /shirt|top|kit|vest/i.test(i));
+  const needsSize = p && p.askSize !== false && inc.some(i => /shirt|top|kit|vest/i.test(i)); // askSize:false = sized in person at trials
   const needsName = inc.some(i => /personalised/i.test(i));
   $('#size-wrap').style.display = needsSize ? '' : 'none';
   $('#size-select').required = needsSize;
