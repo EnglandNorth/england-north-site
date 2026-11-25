@@ -49,6 +49,7 @@ const CONFIG = {
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
       who: "U22 men's squad", entry: "Selected at trials",
       price: "Confirmed by January 2027", status: "Dates confirmed",
+      includes: ["England North match shirt", "Training kit"],
       blurb: "Our fourth year touring Waremme. Training, matches against Belgian club opposition and a pro league game.",
       cta: "Register for trials", pickTitle: "England North Trials"
     },
@@ -58,6 +59,7 @@ const CONFIG = {
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
       who: "Under-18 girls", entry: "Selected at girls trials",
       price: "To be confirmed", status: "Dates confirmed",
+      includes: ["England North match shirt", "Training kit"],
       blurb: "England North girls are heading to Waremme. Training, matches against Belgian club opposition and the full touring experience.",
       cta: "Register for trials", pickTitle: "England North Girls Trials"
     },
@@ -67,6 +69,7 @@ const CONFIG = {
       when: "Date to be confirmed", sortDate: "", where: "Venue to be confirmed",
       who: "U22 men", entry: "Open to all",
       price: "£25 per player", status: "Register now",
+      includes: ["Personalised match T-shirt"],
       blurb: "Trials for the Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
       cta: "Register for trials"
     },
@@ -76,6 +79,7 @@ const CONFIG = {
       when: "January 2027, date to be confirmed", sortDate: "2027-01-01", where: "Venue to be confirmed",
       who: "Under-18 girls", entry: "Open to all",
       price: "£25 per player", status: "Register your interest",
+      includes: ["Personalised match T-shirt"],
       blurb: "Trials for the girls' Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
       cta: "Register for trials"
     },
