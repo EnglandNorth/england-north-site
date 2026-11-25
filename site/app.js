@@ -44,7 +44,7 @@ const CONFIG = {
       blurb: "A week of beach volleyball training in the sun over February half-term. Sharper footwork, better reads, better indoor game."
     },
     {
-      id: "belgium",
+      id: "belgium", img: "img/waremme-hall.jpg",
       title: "Belgium Summer Tour", flag: "BELGIUM",
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
       who: "U22 men's squad", entry: "Selected at trials",
@@ -53,13 +53,13 @@ const CONFIG = {
       cta: "Register for trials", pickTitle: "England North Trials"
     },
     {
-      id: "belgium-girls",
+      id: "belgium-girls", img: "img/girls-tour.jpg",
       title: "Belgium Girls Summer Tour", flag: "BELGIUM",
       when: "20 to 23 Aug 2027", sortDate: "2027-08-20", endDate: "2027-08-23", where: "Waremme, Belgium",
       who: "Under-18 girls", entry: "Selected at girls trials",
       price: "To be confirmed", status: "Dates confirmed",
       blurb: "England North girls are heading to Waremme. Training, matches against Belgian club opposition and the full touring experience.",
-      cta: "Register for girls trials", pickTitle: "England North Girls Trials"
+      cta: "Register for trials", pickTitle: "England North Girls Trials"
     },
     {
       id: "trials", img: "img/trials.jpg",
@@ -71,13 +71,13 @@ const CONFIG = {
       cta: "Register for trials"
     },
     {
-      id: "girls-trials",
+      id: "girls-trials", img: "img/girls-trials.jpg",
       title: "England North Girls Trials", flag: "GIRLS TRIALS",
       when: "January 2027, date to be confirmed", sortDate: "2027-01-01", where: "Venue to be confirmed",
       who: "Under-18 girls", entry: "Open to all",
       price: "£25 per player", status: "Register your interest",
       blurb: "Trials for the girls' Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
-      cta: "Register for girls trials"
+      cta: "Register for trials"
     },
     {
       id: "raf", img: "img/raf-camp.jpg",
