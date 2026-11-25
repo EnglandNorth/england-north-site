@@ -1,0 +1,152 @@
+/* England North staff availability page.
+   Trips and events come from CONFIG in /config.js (programmes + staffOnly),
+   so anything added to the website shows up here too.
+   Answers are sent to the Google Apps Script set in CONFIG.staffSheet. */
+
+const ROLES = ['Coach', 'Driver', 'First aider', 'Welfare lead'];
+const STATUS = [['yes', 'Available'], ['maybe', 'Maybe'], ['no', "Can't"]];
+const KEY = 'en-staff-v1';
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// Every trip and event, soonest first; ones without a date go last
+const events = [...CONFIG.programmes, ...(CONFIG.staffOnly || [])]
+  .map(p => ({ ...p, staffOnly: (CONFIG.staffOnly || []).includes(p) }))
+  .sort((a, b) => (a.sortDate || '9999').localeCompare(b.sortDate || '9999'));
+
+// Individual days for multi-day events (dates only, no time zone shifts)
+function days(p) {
+  if (!p.sortDate || !p.endDate || p.endDate === p.sortDate) return [];
+  const out = [];
+  const d = new Date(p.sortDate + 'T12:00:00Z');
+  const end = new Date(p.endDate + 'T12:00:00Z');
+  while (d <= end && out.length < 31) {
+    out.push(d.toISOString().slice(0, 10));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return out;
+}
+const fmt = (iso, opts) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { timeZone: 'UTC', ...opts });
+
+// Saved answers on this phone, so staff can come back and edit
+let state = { person: {}, answers: {} };
+try { state = { ...state, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch (e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} };
+const ans = id => (state.answers[id] = state.answers[id] || { status: '', days: null, roles: [], note: '' });
+
+function render() {
+  $('#events').innerHTML = events.map(p => {
+    const a = ans(p.id);
+    const ds = days(p);
+    const confirmed = p.sortDate && p.endDate;
+    const cal = confirmed
+      ? `<div class="m">${fmt(p.sortDate, { month: 'short' })}</div><div class="d">${fmt(p.sortDate, { day: 'numeric' })}</div>`
+      : `<div class="m">${p.sortDate ? fmt(p.sortDate, { month: 'short' }) : 'Date'}</div><div class="d tbc">TBC</div>`;
+    const picked = a.days || ds;
+    return `<article class="ev${a.status === 'yes' || a.status === 'maybe' ? ' open' : ''}" data-id="${esc(p.id)}">
+      <div class="ev-head">
+        <div class="cal">${cal}</div>
+        <div><h3>${esc(p.title)}${p.staffOnly ? '<span class="stamp">Staff only</span>' : ''}</h3>
+        <div class="sub">${esc(p.when)} · ${esc(p.where || 'Venue TBC')}</div></div>
+      </div>
+      <div class="ev-body">
+        <div class="seg" role="group" aria-label="Can you do ${esc(p.title)}?">
+          ${STATUS.map(([s, l]) => `<button type="button" data-s="${s}" aria-pressed="${a.status === s}">${l}</button>`).join('')}
+        </div>
+        <div class="more">
+          ${ds.length ? `<h4>Which days?</h4><p class="hint">Tap to remove any days you can't do</p><div class="chips" data-group="days">
+            ${ds.map(d => `<button type="button" class="chip" data-v="${d}" aria-pressed="${picked.includes(d)}">${fmt(d, { day: 'numeric' })}<small>${fmt(d, { weekday: 'short' })}</small></button>`).join('')}
+          </div>` : ''}
+          <h4>Your role</h4><div class="chips" data-group="roles">
+            ${ROLES.map(r => `<button type="button" class="chip" data-v="${esc(r)}" aria-pressed="${a.roles.includes(r)}">${esc(r)}</button>`).join('')}
+          </div>
+          <label>Anything we should know? <small>(optional)</small><input data-note maxlength="200" value="${esc(a.note)}" placeholder="e.g. can drive the minibus, arriving a day late"></label>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  progress();
+}
+
+function progress() {
+  const done = events.filter(p => ans(p.id).status).length;
+  $('#prog-text').textContent = `${done} of ${events.length} answered`;
+  $('#prog-fill').style.width = (events.length ? 100 * done / events.length : 0) + '%';
+}
+
+// Fill in saved personal details
+const form = $('#staff-form');
+for (const [k, v] of Object.entries(state.person)) if (form.elements[k]) form.elements[k].value = v;
+form.addEventListener('input', e => {
+  if (e.target.name) { state.person[e.target.name] = e.target.value; save(); }
+  if (e.target.matches('[data-note]')) { ans(e.target.closest('.ev').dataset.id).note = e.target.value; save(); }
+});
+
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-action="edit"]')) { document.body.classList.remove('sent'); scrollTo(0, 0); return; }
+  const ev = e.target.closest('.ev');
+  if (!ev) return;
+  const a = ans(ev.dataset.id);
+  const seg = e.target.closest('.seg button');
+  if (seg) {
+    a.status = seg.dataset.s;
+    ev.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-pressed', b === seg));
+    ev.classList.toggle('open', a.status !== 'no');
+    ev.classList.remove('need');
+    progress(); save(); return;
+  }
+  const chip = e.target.closest('.chip');
+  if (chip) {
+    const on = chip.getAttribute('aria-pressed') !== 'true';
+    chip.setAttribute('aria-pressed', on);
+    const group = chip.parentElement.dataset.group;
+    a[group] = [...chip.parentElement.querySelectorAll('.chip[aria-pressed="true"]')].map(c => c.dataset.v);
+    save();
+  }
+});
+
+function fail(text, el) {
+  const m = $('#msg');
+  m.textContent = text; m.className = 'msg err';
+  (el || m).scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  $('#msg').className = 'msg';
+  const bad = [...form.querySelectorAll('[name][required]')].find(f => !f.value.trim() || !f.checkValidity());
+  if (bad) { bad.focus(); return fail('Please fill in your details at the top first.', bad); }
+  const missing = events.filter(p => !ans(p.id).status);
+  document.querySelectorAll('.ev').forEach(el => el.classList.toggle('need', missing.some(p => p.id === el.dataset.id)));
+  if (missing.length) return fail(`Please answer ${missing.length === 1 ? 'the event' : 'the ' + missing.length + ' events'} marked in red.`, document.querySelector('.ev.need'));
+  if (!CONFIG.staffSheet) return fail('This page isn\'t connected to the staff sheet yet. Please try again later.');
+
+  const payload = {
+    v: 1,
+    person: state.person,
+    events: events.map(p => {
+      const a = ans(p.id), ds = days(p);
+      const picked = a.status === 'no' ? [] : (a.days || ds);
+      return {
+        id: p.id, title: p.title, when: p.when, start: p.sortDate || '',
+        status: a.status,
+        days: a.status === 'no' || !ds.length ? '' : picked.length === ds.length ? 'All days' : picked.map(d => fmt(d, { weekday: 'short', day: 'numeric', month: 'short' })).join(', '),
+        roles: a.status === 'no' ? '' : a.roles.join(', '),
+        note: a.note || ''
+      };
+    })
+  };
+  const btn = $('#send');
+  btn.disabled = true; btn.textContent = 'Sending…';
+  try {
+    await fetch(CONFIG.staffSheet, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
+  } catch (err) {
+    btn.disabled = false; btn.textContent = 'Send';
+    return fail('That didn\'t send. Check your signal and try again.');
+  }
+  btn.disabled = false; btn.textContent = 'Send';
+  document.body.classList.add('sent');
+  scrollTo(0, 0);
+});
+
+render();

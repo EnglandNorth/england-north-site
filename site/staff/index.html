@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0b0b">
+<title>Staff availability | England North Volleyball</title>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0b0b0b; --ink:#1b1916; --red:#e30613; --red-dark:#b8050f;
+  --gold:#d4a537; --gold-deep:#9a7420; --gold-soft:#f6ecd3;
+  --paper:#f6f3ec; --card:#ffffff; --line:#e7e1d4; --grey:#6f6a60;
+  --radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:17px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:110px}
+h1,h2,h3,.cond{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.01em}
+.wrap{max-width:720px;margin:0 auto;padding:0 18px}
+
+/* header */
+.top{background:var(--black);color:#fff;position:relative;overflow:hidden}
+.top::after{content:"";position:absolute;inset:0;background:radial-gradient(420px 260px at 100% 0%,rgba(227,6,19,.35),transparent 70%),radial-gradient(360px 220px at 0% 120%,rgba(212,165,55,.22),transparent 70%);pointer-events:none}
+.top .wrap{position:relative;z-index:1;padding-top:22px;padding-bottom:30px}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:26px}
+.brand img{height:34px;width:auto}
+.brand span{font-family:'Barlow Condensed';font-weight:800;text-transform:uppercase;letter-spacing:.04em;font-size:1.05rem;line-height:1}
+.brand small{display:block;font-size:.66rem;letter-spacing:.24em;color:var(--gold);font-weight:700}
+.top h1{font-size:clamp(2.4rem,9vw,3.4rem);font-weight:800;line-height:.92}
+.top h1 em{font-style:normal;color:var(--gold)}
+.top p{color:#d8d4cb;margin-top:12px;max-width:520px}
+.goldline{height:4px;background:linear-gradient(90deg,var(--red) 0 50%,var(--gold) 50% 100%)}
+
+/* sections */
+.step{display:flex;align-items:center;gap:12px;margin:34px 0 14px}
+.step b{width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--black);display:grid;place-items:center;font-family:'Barlow Condensed';font-weight:800;font-size:1.15rem;flex:none}
+.step h2{font-size:1.6rem;font-weight:800}
+.step p{font-size:.92rem;color:var(--grey);text-transform:none;letter-spacing:0;font-family:'Barlow'}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 6px 20px rgba(60,45,10,.05)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid .full{grid-column:1/-1}
+@media(max-width:560px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:600;font-size:.92rem}
+label small{font-weight:400;color:var(--grey)}
+input,select{width:100%;margin-top:6px;font:inherit;font-size:16px;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fffdf8;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(212,165,55,.2)}
+.privacy{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--gold-soft);color:#5d4a17;font-size:.88rem}
+.privacy::before{content:"🔒";flex:none}
+
+/* events */
+.events{display:grid;gap:14px}
+.ev{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 6px 20px rgba(60,45,10,.05);transition:border-color .2s,box-shadow .2s}
+.ev.need{border-color:var(--red);box-shadow:0 0 0 4px rgba(227,6,19,.12)}
+.ev-head{display:grid;grid-template-columns:64px 1fr;gap:14px;padding:16px 16px 4px;align-items:center}
+.cal{border-radius:12px;overflow:hidden;text-align:center;border:1px solid var(--line);font-family:'Barlow Condensed';text-transform:uppercase}
+.cal .m{background:var(--black);color:var(--gold);font-weight:800;font-size:.8rem;letter-spacing:.12em;padding:3px 0}
+.cal .d{font-weight:800;font-size:1.7rem;line-height:1.15;padding:2px 0 3px}
+.cal .d.tbc{font-size:1rem;padding:9px 0 8px;color:var(--grey)}
+.ev h3{font-size:1.35rem;font-weight:800;line-height:1}
+.ev .sub{font-size:.9rem;color:var(--grey);margin-top:4px}
+.ev .stamp{display:inline-block;font-family:'Barlow Condensed';font-weight:700;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;background:var(--gold-soft);color:var(--gold-deep);padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:2px}
+.ev-body{padding:12px 16px 16px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg button{font:inherit;font-family:'Barlow Condensed';font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:1rem;padding:12px 6px;border-radius:12px;border:1.5px solid var(--line);background:#fffdf8;color:var(--ink);cursor:pointer;transition:all .15s}
+.seg button:hover{border-color:#cfc6b2}
+.seg button[aria-pressed="true"][data-s="yes"]{background:var(--red);border-color:var(--red);color:#fff}
+.seg button[aria-pressed="true"][data-s="maybe"]{background:var(--gold);border-color:var(--gold);color:var(--black)}
+.seg button[aria-pressed="true"][data-s="no"]{background:#3a3833;border-color:#3a3833;color:#fff}
+.more{display:none;margin-top:16px;padding-top:14px;border-top:1px dashed var(--line)}
+.ev.open .more{display:block}
+.more h4{font-size:.82rem;text-transform:uppercase;letter-spacing:.12em;color:var(--gold-deep);font-weight:700;margin:2px 0 8px}
+.more .chips{margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-size:.92rem;font-weight:600;padding:8px 13px;border-radius:99px;border:1.5px solid var(--line);background:#fffdf8;color:var(--ink);cursor:pointer;transition:all .15s;line-height:1.1;text-align:center}
+.chip small{display:block;font-size:.68rem;font-weight:500;color:var(--grey);text-transform:uppercase;letter-spacing:.06em}
+.chip[aria-pressed="true"]{background:var(--black);border-color:var(--black);color:#fff}
+.chip[aria-pressed="true"] small{color:var(--gold)}
+.hint{font-size:.82rem;color:var(--grey);margin:-8px 0 14px}
+
+/* send bar */
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(11,11,11,.97);backdrop-filter:blur(8px);color:#fff;z-index:20;padding:12px 0 calc(12px + env(safe-area-inset-bottom))}
+.bar .wrap{display:flex;align-items:center;gap:14px;justify-content:space-between}
+.prog{flex:1;min-width:0}
+.prog span{font-size:.86rem;color:#cfcac0}
+.prog .track{height:6px;background:#2a2824;border-radius:99px;margin-top:6px;overflow:hidden}
+.prog .fill{height:100%;width:0;background:linear-gradient(90deg,var(--red),var(--gold));border-radius:99px;transition:width .3s}
+.send{font:inherit;font-family:'Barlow Condensed';font-weight:800;text-transform:uppercase;letter-spacing:.05em;font-size:1.1rem;background:var(--red);color:#fff;border:0;border-radius:99px;padding:13px 24px;cursor:pointer;flex:none;transition:background .15s}
+.send:hover{background:var(--red-dark)}
+.send:disabled{opacity:.6;cursor:default}
+.msg{margin-top:18px;padding:14px 16px;border-radius:12px;font-weight:600;display:none}
+.msg.err{display:block;background:#fde8e9;color:var(--red-dark)}
+
+/* done */
+.done{display:none;text-align:center;padding:40px 20px}
+.done .tick{width:74px;height:74px;border-radius:50%;margin:0 auto 18px;background:var(--gold);display:grid;place-items:center;font-size:2.2rem;color:var(--black)}
+.done h2{font-size:2.3rem;font-weight:800}
+.done p{color:var(--grey);margin:10px auto 22px;max-width:420px}
+.done button{font:inherit;font-weight:600;background:none;border:1.5px solid var(--ink);border-radius:99px;padding:10px 20px;cursor:pointer}
+body.sent main,body.sent .bar{display:none}
+body.sent .done{display:block}
+footer{text-align:center;color:var(--grey);font-size:.82rem;margin:40px 0 10px}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="wrap">
+    <div class="brand"><img src="/img/mark-white.png" alt=""><span>England North<small>Staff</small></span></div>
+    <h1>Trip &amp; event <em>availability</em></h1>
+    <p>Tell us which trips and events you can do, and give us your booking details once, so flights and rooms get booked without anyone chasing you. It takes about three minutes. You can come back and change your answers at any time.</p>
+  </div>
+</div>
+<div class="goldline"></div>
+
+<main class="wrap">
+  <form id="staff-form" novalidate>
+    <div class="step"><b>1</b><div><h2>Your details</h2><p>Used for group bookings only</p></div></div>
+    <div class="panel">
+      <div class="grid">
+        <label>Full name<input name="name" autocomplete="name" required></label>
+        <label>Mobile<input name="mobile" type="tel" autocomplete="tel" required></label>
+        <label class="full">Email<input name="email" type="email" autocomplete="email" required></label>
+        <label class="full">Name exactly as on your passport <small>(first, middle, surname)</small><input name="passportName" required></label>
+        <label>Date of birth<input name="dob" type="date" required></label>
+        <label>Nearest airport
+          <select name="airport" required>
+            <option value="">Choose one</option>
+            <option>Manchester</option><option>East Midlands</option><option>Leeds Bradford</option>
+            <option>Liverpool</option><option>Birmingham</option><option>Newcastle</option>
+            <option>London (any)</option><option>Other</option>
+          </select>
+        </label>
+        <label class="full">Dietary needs or allergies <small>(optional)</small><input name="dietary" placeholder="e.g. vegetarian, nut allergy"></label>
+      </div>
+      <div class="privacy">These details go straight to the England North staff sheet and are only used to book travel and rooms. We never ask for passport numbers here.</div>
+    </div>
+
+    <div class="step"><b>2</b><div><h2>Trips &amp; events</h2><p>Answer each one, then pick the days and your role</p></div></div>
+    <div class="events" id="events"></div>
+    <div class="msg" id="msg" role="alert"></div>
+  </form>
+  <footer>England North Volleyball · staff only · please don't share this link</footer>
+</main>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="prog"><span id="prog-text">0 of 0 answered</span><div class="track"><div class="fill" id="prog-fill"></div></div></div>
+    <button class="send" id="send" type="submit" form="staff-form">Send</button>
+  </div>
+</div>
+
+<section class="done wrap" aria-live="polite">
+  <div class="tick">✓</div>
+  <h2>Thanks, you're in</h2>
+  <p>Your availability and details are saved. If anything changes, open this link again. Your answers will still be here, so just update them and send again.</p>
+  <button type="button" data-action="edit">Change my answers</button>
+</section>
+
+<script src="/config.js"></script>
+<script src="/staff/staff.js"></script>
+</body>
+</html>

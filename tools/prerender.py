@@ -1,6 +1,6 @@
 """Bake the programme cards, dates and Google event data into site/index.html.
 
-Run after any change to CONFIG in site/app.js:
+Run after any change to CONFIG in site/config.js:
     python3 tools/prerender.py
 
 Why: the cards are drawn by app.js when the page loads. Search engines don't
