@@ -18,7 +18,9 @@ const CONFIG = {
     club: "entry.1937283576",
     position: "entry.571082787",
     programme: "entry.341259679",
-    message: "entry.467820305"
+    message: "entry.467820305",
+    size: "",        // "Shirt size" question: add its entry ID once it's on the Google Form
+    printName: ""    // "Name on training top" question: same
   },
 
   // sortDate = first day, endDate = last day (YYYY-MM-DD). Used for the dates list and Google's event listings.
@@ -152,7 +154,20 @@ function render(){
 function pick(title){
   const sel = $('#programme-select');
   [...sel.options].forEach(o => { if (o.text === title) sel.value = o.text; });
+  kitFields();
 }
+
+// Shirt size is needed for any programme that includes kit; the printed name only for trials
+function kitFields(){
+  const p = CONFIG.programmes.find(x => x.title === $('#programme-select').value);
+  const inc = (p && p.includes) || [];
+  const needsSize = inc.some(i => /shirt|top|kit|vest/i.test(i));
+  const needsName = inc.some(i => /personalised/i.test(i));
+  $('#size-wrap').style.display = needsSize ? '' : 'none';
+  $('#size-select').required = needsSize;
+  $('#printname-wrap').style.display = needsName ? '' : 'none';
+}
+$('#programme-select').addEventListener('change', kitFields);
 
 $('#reg-form').addEventListener('submit', async e => {
   e.preventDefault();
@@ -179,8 +194,14 @@ $('#reg-form').addEventListener('submit', async e => {
   data.append(g.club, v('club') || 'Not given');
   data.append(g.position, v('position') || 'Not given');
   data.append(g.programme, v('programme'));
+  // Shirt size and printed name get their own questions once the form has them; until then they ride in the message
+  const extra = [];
+  const size = $('#size-wrap').style.display === 'none' ? '' : v('size');
+  const printName = $('#printname-wrap').style.display === 'none' ? '' : v('printname');
+  if (size) { if (g.size) data.append(g.size, size); else extra.push('Shirt size: ' + size); }
+  if (printName) { if (g.printName) data.append(g.printName, printName); else extra.push('Name on top: ' + printName); }
   // The form has no parent-name question, so the name goes in with the message
-  data.append(g.message, [v('parent') ? 'Parent/guardian: ' + v('parent') : '', v('message')].filter(Boolean).join(' | ') || 'None');
+  data.append(g.message, [...extra, v('parent') ? 'Parent/guardian: ' + v('parent') : '', v('message')].filter(Boolean).join(' | ') || 'None');
   try {
     await fetch(g.action, { method: 'POST', mode: 'no-cors', body: data });
   } catch (err) {
@@ -213,3 +234,4 @@ document.addEventListener('click', e => {
 
 render();
 openFromHash();
+kitFields();
