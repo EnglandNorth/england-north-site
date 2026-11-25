@@ -69,7 +69,7 @@ const CONFIG = {
       when: "Date to be confirmed", sortDate: "", where: "Venue to be confirmed",
       who: "U22 men", entry: "Open to all",
       price: "£25 per player", status: "Register now",
-      includes: ["Personalised match T-shirt"],
+      includes: ["Personalised training top"],
       blurb: "Trials for the Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
       cta: "Register for trials"
     },
@@ -79,7 +79,7 @@ const CONFIG = {
       when: "January 2027, date to be confirmed", sortDate: "2027-01-01", where: "Venue to be confirmed",
       who: "Under-18 girls", entry: "Open to all",
       price: "£25 per player", status: "Register your interest",
-      includes: ["Personalised match T-shirt"],
+      includes: ["Personalised training top"],
       blurb: "Trials for the girls' Waremme summer tour squad. Register now and we'll send you the date and venue as soon as they're confirmed.",
       cta: "Register for trials"
     },
